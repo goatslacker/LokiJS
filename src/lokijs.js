@@ -1957,7 +1957,7 @@
 
       // if nonpersistent return resultset data evaluation
       if (!this.persistent) {
-        // not sure if this emit will be useful, but if view is non-persistent 
+        // not sure if this emit will be useful, but if view is non-persistent
         // we will raise event only if resulset has yet to be initialized.
         // user can intercept via dynView.on('rebuild', myCallback);
         // emit is async wait 1 ms so our data() call should exec before event fired
@@ -2116,7 +2116,7 @@
      * @param {object} configuration object
      */
     function Collection(name, options) {
-      // the name of the collection 
+      // the name of the collection
 
       this.name = name;
       // the data held by the collection
@@ -2853,6 +2853,32 @@
 
     Collection.prototype.no_op = function () {
       return;
+    };
+
+    Collection.prototype.serialize = function () {
+      return JSON.stringify(this);
+    };
+
+    Collection.prototype.load = function (serializedColl) {
+      var coll = JSON.parse(serializedColl);
+      this.data = coll.data;
+
+      this.transactional = coll.transactional;
+      this.asyncListeners = coll.asyncListeners;
+      this.disableChangesApi = coll.disableChangesApi;
+      this.cloneObjects = coll.cloneObjects;
+
+      this.maxId = (coll.data.length === 0) ? 0 : coll.maxId;
+      this.idIndex = coll.idIndex;
+      // if saved in previous format recover id index out of it
+      if (typeof (coll.indices) !== 'undefined') {
+        this.idIndex = coll.indices.id;
+      }
+      if (typeof (coll.binaryIndices) !== 'undefined') {
+        this.binaryIndices = coll.binaryIndices;
+      }
+
+      this.ensureId();
     };
 
     Loki.Collection = Collection;
